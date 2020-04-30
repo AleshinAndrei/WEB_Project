@@ -6,7 +6,8 @@ from wtforms import PasswordField, BooleanField, SubmitField, StringField, Integ
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField
 from flask_restful import Api
-from data import products, product_resource, category_resource, categories
+from data import products, categories
+from resources import product_resource, category_resource
 
 
 class SearchForm(FlaskForm):
@@ -18,8 +19,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 api = Api(app)
 api.add_resource(product_resource.ProductsListResource, '/api/products')
-api.add_resource(product_resource.ProductResource, '/api/product/<int:product_id>')
-api.add_resource(category_resource.CategoryResource, '/api/category/<int:category_id>')
+api.add_resource(product_resource.ProductResource, '/api/products/<int:product_id>')
+api.add_resource(category_resource.CategoryResource, '/api/categories/<int:category_id>')
 api.add_resource(category_resource.CategoriesListResource, '/api/categories')
 
 
@@ -27,13 +28,17 @@ api.add_resource(category_resource.CategoriesListResource, '/api/categories')
 @app.route("/index", methods=['GET', 'POST'])
 def main():
     search_form = SearchForm()
-    if search_form.validate_on_submit():
-        search = search_form.search
+    if search_form.is_submitted():
+        search = search_form.search.data
         list_of_products = []
-        for product in product_resource.ProductsListResource.get()['products'].json():
-            if any(map(lambda key: search in product[key], ['description', 'name'])) or \
-                    search in category_resource.CategoryResource.get(product['id']):
+        print(product_resource.ProductsListResource().get().json)
+        for product in product_resource.ProductsListResource().get().json['products']:
+            if any(map(
+                    lambda key: search in product[key], ['description', 'name', 'category']
+            )):
                 list_of_products.append(product)
+        print('ok')
+        return render_template('catalog.html', list_of_products=list_of_products, search_form=search_form)
 
     return render_template('index.html', search_form=search_form)
 

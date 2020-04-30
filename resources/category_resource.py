@@ -1,7 +1,7 @@
 from flask_restful import abort, Resource
 from flask import jsonify
 from data import db_session, categories
-import category_argparser
+from . import category_argparser
 
 Categories = categories.Categories
 

@@ -10,8 +10,8 @@ class Products(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
-    quantity_on_storage = sqlalchemy.Column(sqlalchemy.Integer)
+    category = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id"))
     description = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
     image_source = sqlalchemy.Column(sqlalchemy.String)
-    category = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("categories.id"))
+    quantity_on_storage = sqlalchemy.Column(sqlalchemy.Integer)
