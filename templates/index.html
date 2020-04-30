@@ -16,9 +16,6 @@
                 Название сервиса
             </h1>
             <h3 class="navbar-brand">Сервис по доставке еды</h3>
-            {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="/logout">{{ current_user.name }} {{ current_user.surname }}</a>
-            {% else %}
             <form action="" method="post">
                 <div>
                     {{ search_form.search }}
@@ -28,7 +25,6 @@
                 <a class="btn btn-outline-success" href="/register">Register</a>
                 <a class="btn btn-outline-warning" href="/login">Log in</a>
             </p>
-            {% endif %}
         </nav>
     </header>
     <main role="main" class="container">
