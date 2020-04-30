@@ -1,30 +1,31 @@
 from requests import get, post, delete
 
 
-print(get('http://localhost:5000/api/categories').json())
-print(post('http://localhost:5000/api/categories', json={
-    'name': 'Молочные продукты'
+print(get('http://localhost:5000/api/products').json())
+print(post('http://localhost:5000/api/products', json={
+    'name': 'Молоко',
+    'category': 1,
+    'description': 'Обычное молоко',
+    'price': 3230
 }).json())
-print(post('http://localhost:5000/api/categories', json={
-    'name': 'Овощи, фрукты, ягоды, зелень, грибы'
+print(post('http://localhost:5000/api/products', json={
+    'name': 'Банан',
+    'category': 2,
+    'description': 'Обычный банан',
+    'price': 1299
 }).json())
-print(post('http://localhost:5000/api/categories', json={
-    'name': 'Мучные изделия'
+print(post('http://localhost:5000/api/products', json={
+    'name': 'Булка',
+    'category': 3,
+    'description': 'Обычная булка)'
 }).json())
-print(post('http://localhost:5000/api/categories', json={
-    'name': 'Напитки'
-}).json())
-print(post('http://localhost:5000/api/categories', json={
-    'name': 'Пустышка'
-}).json())
-print(get('http://localhost:5000/api/categories/999').json())
-print(get('http://localhost:5000/api/categories').json())
-print(get('http://localhost:5000/api/categories/1').json())
-print(get('http://localhost:5000/api/categories/2').json())
-print(get('http://localhost:5000/api/categories/3').json())
-print(get('http://localhost:5000/api/categories/4').json())
-print(get('http://localhost:5000/api/categories').json())
-print(delete('http://localhost:5000/api/categories/999').json())
-print(delete('http://localhost:5000/api/categories').json())
-print(delete('http://localhost:5000/api/categories/5').json())
-print(get('http://localhost:5000/api/categories').json())
+print(get('http://localhost:5000/api/products/999').json())
+print(get('http://localhost:5000/api/products').json())
+print(get('http://localhost:5000/api/products/1').json())
+print(get('http://localhost:5000/api/products/2').json())
+print(get('http://localhost:5000/api/products/3').json())
+print(get('http://localhost:5000/api/products').json())
+print(delete('http://localhost:5000/api/products/999').json())
+print(delete('http://localhost:5000/api/products').json())
+print(delete('http://localhost:5000/api/products/3').json())
+print(get('http://localhost:5000/api/products').json())
