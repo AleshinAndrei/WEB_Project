@@ -6,8 +6,8 @@ from wtforms import PasswordField, BooleanField, SubmitField, StringField, Integ
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField
 from flask_restful import Api
-from data import products, categories
-from resources import product_resource, category_resource
+from data import products, categories, users
+from resources import product_resource, category_resource, user_resource
 
 
 class SearchForm(FlaskForm):
@@ -22,6 +22,8 @@ api.add_resource(product_resource.ProductsListResource, '/api/products')
 api.add_resource(product_resource.ProductResource, '/api/products/<int:product_id>')
 api.add_resource(category_resource.CategoryResource, '/api/categories/<int:category_id>')
 api.add_resource(category_resource.CategoriesListResource, '/api/categories')
+api.add_resource(user_resource.UsersListResource, '/api/users')
+api.add_resource(user_resource.UserResource, '/api/users/<int:user_id>')
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -31,13 +33,11 @@ def main():
     if search_form.is_submitted():
         search = search_form.search.data
         list_of_products = []
-        print(product_resource.ProductsListResource().get().json)
         for product in product_resource.ProductsListResource().get().json['products']:
             if any(map(
                     lambda key: search in product[key], ['description', 'name', 'category']
             )):
                 list_of_products.append(product)
-        print('ok')
         return render_template('catalog.html', list_of_products=list_of_products, search_form=search_form)
 
     return render_template('index.html', search_form=search_form)

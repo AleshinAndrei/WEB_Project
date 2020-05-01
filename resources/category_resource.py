@@ -10,7 +10,7 @@ def abort_if_category_not_found(category_id):
     session = db_session.create_session()
     category = session.query(Categories).get(category_id)
     if not category:
-        abort(404, message=f"category {category_id} not found")
+        abort(404, message=f"Category {category_id} not found")
 
 
 class CategoryResource(Resource):

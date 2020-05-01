@@ -13,7 +13,7 @@ def abort_if_product_not_found(product_id):
     session = db_session.create_session()
     product = session.query(Products).get(product_id)
     if not product:
-        abort(404, message=f"product {product_id} not found")
+        abort(404, message=f"Product {product_id} not found")
 
 
 class ProductResource(Resource):
