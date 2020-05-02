@@ -59,6 +59,6 @@ class ProductsListResource(Resource):
         try:
             session.add(product)
         except Exception:
-            abort(404)
+            abort(400)
         session.commit()
         return jsonify({'success': 'OK'})
