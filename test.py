@@ -1,35 +1,30 @@
 from requests import get, post, delete
 
 
-print(get('http://localhost:5000/api/users').json())
-print(post('http://localhost:5000/api/users', json={
-    'surname': 'Иванов',
-    'name': 'Иван',
-    'email': 'ivan@gmail.com',
-    'address': 'Москва, ул. Тверская, 1',
-    'password': '12345'
+print(get('http://localhost:5000/api/baskets').json())
+print(post('http://localhost:5000/api/baskets', json={
+    'user_id': 1,
+    'list_of_products': '1:1;2:1;3:2',
 }).json())
-print(post('http://localhost:5000/api/users', json={
-    'surname': 'Сидоров',
-    'name': 'Алексей',
-    'email': 'ivan@gmail.com',
-    'address': 'Москва, ул. Тверская, 2',
-    'password': 'qwerty'
+print(post('http://localhost:5000/api/baskets', json={
+    'user_id': 2,
+    'list_of_products': '1:2;3:2',
 }).json())
-print(post('http://localhost:5000/api/users', json={
-    'surname': 'Романов',
-    'name': 'Владимир',
-    'email': 'vlad@gmail.com',
-    'address': 'Москва, ул. Тверская, 3',
-    'password': 'poiuy'
+print(post('http://localhost:5000/api/baskets', json={
+    'user_id': 1,
+    'list_of_products': '1;2:3;',
 }).json())
-print(get('http://localhost:5000/api/users/999').json())
-print(get('http://localhost:5000/api/users').json())
-print(get('http://localhost:5000/api/users/1').json())
-print(get('http://localhost:5000/api/users/2').json())
-print(get('http://localhost:5000/api/users/3').json())
-print(get('http://localhost:5000/api/users').json())
-print(delete('http://localhost:5000/api/users/999').json())
-print(delete('http://localhost:5000/api/users').json())
-print(delete('http://localhost:5000/api/users/2').json())
-print(get('http://localhost:5000/api/users').json())
+print(post('http://localhost:5000/api/baskets', json={
+    'user_id': 1,
+    'list_of_products': '4:5;',
+}).json())
+print(get('http://localhost:5000/api/baskets/999').json())
+print(get('http://localhost:5000/api/baskets').json())
+print(get('http://localhost:5000/api/baskets/1').json())
+print(get('http://localhost:5000/api/baskets/2').json())
+print(get('http://localhost:5000/api/baskets/3').json())
+print(get('http://localhost:5000/api/baskets').json())
+print(delete('http://localhost:5000/api/baskets/999').json())
+print(delete('http://localhost:5000/api/baskets').json())
+print(delete('http://localhost:5000/api/baskets/2').json())
+print(get('http://localhost:5000/api/baskets').json())

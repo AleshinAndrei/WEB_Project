@@ -5,20 +5,29 @@
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-    <div class="row row-cols-5">
-    {% for product in list_of_products %}
-        <div class="col">
-            <div class="card" style="width: 200px; padding: 5px; margin: 10px">
-                <img src="../static/images/noimg.png"
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">{{ product['name'] }}</h5>
-                    <h6 class="card-subtitle">{{ product['price'] // 100 }}р {{ product['price'] % 100 }}к</h6>
-                    <p class="card-text">{{ product['category'] }}</p>
-                    <p class="card-text">{{ product['description'] }}</p>
+    <form action="/in_basket">
+        <div class="row row-cols-4 catalog">
+            {% for product in list_of_products %}
+            <div class="col">
+                <div class="card">
+                    <img src="../static/images/noimg.png"
+                         class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product['name'] }}</h5>
+                        <h6 class="card-subtitle">{{ product['price'] // 100 }}р {{ product['price'] % 100 }}к</h6>
+                        <p class="card-text">{{ product['category'] }}</p>
+                        <p class="card-text">{{ product['description'] }}</p>
+                    </div>
+                    {% if current_user.is_authenticated %}
+                    <div class="card-control">
+                        <input class="card-number" name="{{ product['id'] }}" type="number"
+                               id="col" value="{{ product['bought'] }}" min="{{ product['bought'] }}">
+                        <input type="submit" class="btn btn-success card-buy" value="Купить">
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-    </div>
+    </form>
 {% endblock %}
