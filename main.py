@@ -48,43 +48,56 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-@app.route('/in_basket', methods=['POST', 'GET'])
-def in_basket():
-    data = request.args.to_dict()
-    print(data)
-    for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
-        if basket['user_id'] == current_user.id:
-            products_in_basket = dict()
-            for pair in basket['list_of_products'].split(';'):
-                print('ok1')
-                product_id = str(pair.split(':')[0])
-                count = str(pair.split(':')[1])
-                if product_id in data:
-
-                    products_in_basket[int(product_id)] = int(data[product_id])
-                else:
-                    products_in_basket[int(product_id)] = int(count)
-            basket['list_of_products'] = ';'.join(
-                map(lambda pair: f"{str(pair[0])}:{str(pair[1])}", products_in_basket.items())
-            )
-            delete(f'http://localhost:5000/api/baskets/{basket["id"]}')
-            post('http://localhost:5000/api/baskets', json=basket)
-            print('ok')
-            break
-    return redirect('/')
-
-
 @login_manager.user_loader
 def load_user(user_id):
     session = db_session.create_session()
     return session.query(users.User).get(user_id)
 
 
+@app.route('/basket', methods=['POST', 'GET'])
+def look_basket():
+    search_form = SearchForm()
+    all_products = get(f'http://localhost:5000/api/products').json()['products']
+    for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
+        if basket['user_id'] == current_user.id:
+            list_of_products = []
+            for pair in basket['list_of_products'].split(';'):
+                product_id = int(pair.split(':')[0])
+                quantity = int(pair.split(':')[1])
+                product = list(filter(lambda x: x['id'] == product_id, all_products))[0]
+                product['quantity'] = quantity
+                list_of_products.append(product)
+
+            return render_template('basket.html', list_of_products=list_of_products, search_form=search_form)
+
+
+@app.route('/in_basket', methods=['POST', 'GET'])
+def in_basket():
+    data = request.args.to_dict()
+    for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
+        if basket['user_id'] == current_user.id:
+            products_in_basket = dict()
+            for pair in basket['list_of_products'].split(';'):
+                product_id = str(pair.split(':')[0])
+                quantity = str(pair.split(':')[1])
+                if product_id in data:
+                    products_in_basket[int(product_id)] = int(data[product_id])
+                else:
+                    products_in_basket[int(product_id)] = int(quantity)
+            basket['list_of_products'] = ';'.join(
+                map(lambda pair: f"{str(pair[0])}:{str(pair[1])}", products_in_basket.items())
+            )
+            delete(f'http://localhost:5000/api/baskets/{basket["id"]}')
+            post('http://localhost:5000/api/baskets', json=basket)
+            break
+    return redirect('/basket')
+
+
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/index", methods=['GET', 'POST'])
 def main():
     search_form = SearchForm()
-    return render_template('base.html', search_form=search_form)
+    return render_template('index.html', search_form=search_form)
 
 
 @app.route('/search', methods=['GET', 'POST'])

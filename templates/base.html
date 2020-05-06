@@ -14,12 +14,12 @@
     <header>
         <nav class="navbar navbar-light">
             <h1 class="navbar-brand">
-                Название сервиса
+                Кенгуру
             </h1>
             <h3 class="navbar-brand">Сервис по доставке еды</h3>
             <form action="/search" method="post" novalidate>
                 <div>
-                    {{ search_form.search(class="form-control") }}
+                    {{ search_form.search(class="form-control", placeholder="Поиск") }}
                 </div>
             </form>
             {% if current_user.is_authenticated %}
@@ -29,9 +29,9 @@
                         id="dropdownMenuButton" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false"></button>
                 <div class="dropdown-menu dropdown-menu-md-right" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="">Мой профиль</a>
-                <a class="dropdown-item" href="">Моя карта</a>
-                <a class="dropdown-item" href="">Мои заказы</a>
+                <a class="dropdown-item" href="/">Мой профиль</a>
+                <a class="dropdown-item" href="/basket">Корзина</a>
+                <a class="dropdown-item" href="/">Мои заказы</a>
                 <a class="dropdown-item" href="/logout">Выйти</a>
                 </div>
             </div>
