@@ -25,3 +25,9 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
+    def set_cvv_code(self, cvv_code):
+        self.hashed_cvv_code = generate_password_hash(cvv_code)
+
+    def check_cvv_code(self, cvv_code):
+        return check_password_hash(self.hashed_cvv_code, cvv_code)

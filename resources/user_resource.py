@@ -1,7 +1,7 @@
 from flask_restful import abort, Resource
 from flask import jsonify
 from data import db_session, users
-from . import user_argparser
+from . import user_argparser, user_edit_argparser
 User = users.User
 
 
@@ -23,9 +23,34 @@ class UserResource(Resource):
         abort_if_user_not_found(user_id)
         session = db_session.create_session()
         user = session.query(User).get(user_id)
-        session.delete(user)
-        session.commit()
-        return jsonify({'success': 'OK'})
+        try:
+            session.delete(user)
+            session.commit()
+            return jsonify({'success': 'OK'})
+        except Exception:
+            return abort(500)
+
+    def put(self, user_id):
+        session = db_session.create_session()
+        args = user_edit_argparser.parser.parse_args()
+        user = session.query(User).get(user_id)
+        if 'user' in args:
+            user.name = args['name']
+        if 'surname' in args:
+            user.surname = args['surname']
+        if 'address' in args:
+            user.address = args['address']
+        if 'card_number' in args:
+            user.card_number = args['card_number']
+        if 'password' in args:
+            user.set_password(args['password'])
+        if 'cvv_code' in args:
+            user.set_cvv_code(args['cvv_code'])
+        try:
+            session.commit()
+            return jsonify({'success': 'OK'})
+        except Exception:
+            return abort(500)
 
 
 class UsersListResource(Resource):
@@ -45,7 +70,14 @@ class UsersListResource(Resource):
             email=args['email'],
             address=args['address']
         )
+        if 'card_number' in args and 'hashed_cvv_code' in args:
+            user.card_number = args['card_number']
+            user.hashed_cvv_code = args['hashed_cvv_code']
         user.set_password(args['password'])
         session.add(user)
-        session.commit()
-        return jsonify({'success': 'OK'})
+        try:
+            session.add(user)
+            session.commit()
+            return jsonify({'success': 'OK'})
+        except Exception:
+            return abort(500)

@@ -1,18 +1,25 @@
 from data import db_session
-from flask import Flask, render_template, redirect, request, jsonify
+from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, BooleanField, SubmitField, StringField, IntegerField
+from wtforms import PasswordField, BooleanField, SubmitField, StringField
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField
 from flask_restful import Api
-from data import products, categories, users
+from data import users
 from resources import product_resource, category_resource, user_resource, basket_resource
-from requests import get, post, delete
+from requests import get, post, delete, put
 
 
 class SearchForm(FlaskForm):
     search = StringField('Поиск', validators=[DataRequired()])
+
+
+class EditForm(FlaskForm):
+    surname = StringField('Surname', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
+    address = StringField('Address', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
 class RegisterForm(FlaskForm):
@@ -54,50 +61,82 @@ def load_user(user_id):
     return session.query(users.User).get(user_id)
 
 
+@login_required
 @app.route('/basket', methods=['POST', 'GET'])
 def look_basket():
     search_form = SearchForm()
     all_products = get(f'http://localhost:5000/api/products').json()['products']
+    list_of_products = []
     for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
         if basket['user_id'] == current_user.id:
-            list_of_products = []
             for pair in basket['list_of_products'].split(';'):
                 product_id = int(pair.split(':')[0])
                 quantity = int(pair.split(':')[1])
                 product = list(filter(lambda x: x['id'] == product_id, all_products))[0]
                 product['quantity'] = quantity
                 list_of_products.append(product)
+            break
+    return render_template('basket.html', list_of_products=list_of_products, search_form=search_form)
 
-            return render_template('basket.html', list_of_products=list_of_products, search_form=search_form)
+
+@login_required
+@app.route('/edit', methods=['POST', 'GET'])
+def edit_user():
+    edit_form = EditForm()
+    search_form = SearchForm()
+    if edit_form.validate_on_submit():
+        put(f'http://localhost:5000/api/users/{current_user.id}', json={
+            'surname': edit_form.surname.data,
+            'name': edit_form.name.data,
+            'address': edit_form.address.data
+        })
+        print('ok')
+        return redirect('/profile')
+
+    edit_form.name.data = current_user.name
+    edit_form.surname.data = current_user.surname
+    edit_form.address.data = current_user.address
+    return render_template('register.html', form=edit_form, search_form=search_form)
 
 
+@login_required
+@app.route('/profile')
+def profile():
+    if current_user.is_authenticated:
+        search_form = SearchForm()
+        return render_template('profile.html', search_form=search_form)
+    return redirect('/')
+
+
+@login_required
 @app.route('/in_basket', methods=['POST', 'GET'])
 def in_basket():
     data = request.args.to_dict()
+    products_in_basket = dict()
+    user_basket = {
+            'user_id': current_user.id,
+            'list_of_products': []
+    }
+
     for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
         if basket['user_id'] == current_user.id:
-            products_in_basket = dict()
-            for pair in basket['list_of_products'].split(';'):
-                product_id = str(pair.split(':')[0])
-                quantity = str(pair.split(':')[1])
-                if product_id in data:
-                    products_in_basket[int(product_id)] = int(data[product_id])
-                else:
-                    products_in_basket[int(product_id)] = int(quantity)
-            basket['list_of_products'] = ';'.join(
-                map(lambda pair: f"{str(pair[0])}:{str(pair[1])}", products_in_basket.items())
-            )
             delete(f'http://localhost:5000/api/baskets/{basket["id"]}')
-            post('http://localhost:5000/api/baskets', json=basket)
-            break
+            for pair in basket['list_of_products'].split(';'):
+                product_id = pair.split(':')[0]
+                quantity = pair.split(':')[1]
+                if product_id in data and int(data[product_id]) != 0:
+                    products_in_basket[product_id] = data[product_id]
+                else:
+                    products_in_basket[product_id] = quantity
+
+    for product_id, quantity in data.items():
+        if product_id not in products_in_basket and int(quantity) != 0:
+            products_in_basket[product_id] = quantity
+    user_basket['list_of_products'] = ';'.join(
+        map(lambda pair: f"{pair[0]}:{pair[1]}", products_in_basket.items())
+    )
+    post('http://localhost:5000/api/baskets', json=user_basket)
     return redirect('/basket')
-
-
-@app.route("/", methods=['GET', 'POST'])
-@app.route("/index", methods=['GET', 'POST'])
-def main():
-    search_form = SearchForm()
-    return render_template('index.html', search_form=search_form)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -115,7 +154,7 @@ def search():
                     break
         for product in get('http://localhost:5000/api/products').json()['products']:
             if any(map(
-                    lambda key: search_text in product[key], ['description', 'name', 'category']
+                    lambda key: search_text in product[key].lower(), ['description', 'name', 'category']
             )):
 
                 if len(product['description']) > 30:
@@ -177,6 +216,13 @@ def register():
         return redirect('/')
     return render_template('register.html', title='Регистрация',
                            form=register_form, message='', search_form=search_form)
+
+
+@app.route("/", methods=['GET', 'POST'])
+@app.route("/index", methods=['GET', 'POST'])
+def main():
+    search_form = SearchForm()
+    return render_template('index.html', search_form=search_form)
 
 
 if __name__ == '__main__':
