@@ -34,17 +34,17 @@ class UserResource(Resource):
         session = db_session.create_session()
         args = user_edit_argparser.parser.parse_args()
         user = session.query(User).get(user_id)
-        if 'user' in args:
+        if args['name'] is not None:
             user.name = args['name']
-        if 'surname' in args:
+        if args['surname'] is not None:
             user.surname = args['surname']
-        if 'address' in args:
+        if args['address'] is not None:
             user.address = args['address']
-        if 'card_number' in args:
+        if args['card_number'] is not None:
             user.card_number = args['card_number']
-        if 'password' in args:
+        if args['password'] is not None:
             user.set_password(args['password'])
-        if 'cvv_code' in args:
+        if args['cvv_code'] is not None:
             user.set_cvv_code(args['cvv_code'])
         try:
             session.commit()
@@ -70,7 +70,7 @@ class UsersListResource(Resource):
             email=args['email'],
             address=args['address']
         )
-        if 'card_number' in args and 'hashed_cvv_code' in args:
+        if args['card_number'] is not None and args['hashed_cvv_code'] is not None:
             user.card_number = args['card_number']
             user.hashed_cvv_code = args['hashed_cvv_code']
         user.set_password(args['password'])

@@ -52,9 +52,9 @@ class ProductsListResource(Resource):
             price=args['price'],
             category=args['category']
         )
-        if 'quantity_on_storage' in args:
+        if args['quantity_on_storage'] is not None:
             product.quantity_on_storage = args['quantity_on_storage']
-        if 'image_source' in args:
+        if args['image_source'] is not None:
             product.image_source = args['image_source']
         try:
             session.add(product)

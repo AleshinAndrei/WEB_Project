@@ -96,7 +96,7 @@ def edit_user():
     edit_form.name.data = current_user.name
     edit_form.surname.data = current_user.surname
     edit_form.address.data = current_user.address
-    return render_template('register.html', form=edit_form, search_form=search_form)
+    return render_template('edit.html', form=edit_form, search_form=search_form)
 
 
 @login_required
