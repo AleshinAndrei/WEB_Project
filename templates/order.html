@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    {% if current_user.is_authenticated %}
+    <h2>Заказы</h2>
+    {% if no_order %}
+    <h4>У вас ещё нет заказов</h4>
+    {% else %}
+    <div class="row row-cols-1 orders" style="max-width: 30%;">
+        {% for order in orders %}
+        <div class="col" style="padding: 15px;">
+            <div class="card">
+                <div class="card-body-order">
+                    <h5 class="card-title-order">Заказ № {{ order['id'] }}</h5>
+                </div>
+                <div>
+                    {% if order['status'] == "На обработке" %}
+                        {% set color = '#BDB76B' %}
+                    {% elif order['status'] == "Отклонено" %}
+                        {% set color = 'red' %}
+                    {% elif order['status'] == "В пути" %}
+                        {% set color = 'green' %}
+                    {% elif order['status'] == "Доставленно" %}
+                        {% set color = 'gray' %}
+                    {% else %}
+                        {% set color = 'blue' %}
+                    {% endif %}
+                    <h6 class="card-subtitle-order">
+                        Статус: <span style="color: {{ color }}">{{ order['status'] }}</span>
+                    </h6>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+{% endblock %}

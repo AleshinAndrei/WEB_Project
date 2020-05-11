@@ -6,28 +6,39 @@
     padding: 20px;
 }
 
-.card-number {
+.orders {
+    padding: 20px;
+}
+
+.card-body-order {
+    margin: 5px;
+    height: 40px;
+    max-width: 50px;
+}
+
+.card-number-catalog {
     width: 50px;
 }
 
-.card-buy {
+.card-buy-catalog {
     padding: 5px;
 }
 
-.card-body {
+.card-body-catalog {
     margin: 5px;
     height: 250px;
 }
 
-.card-control {
+.card-control-catalog {
     padding: 10px;
 }
 
-.card-number {
+.card-number-catalog,  .card-number-order{
     border-radius: 3px;
 }
 
-.card-title, .card-subtitle, .card-text, .card-text {
+.card-title-catalog, .card-subtitle-catalog, .card-text-catalog,
+ .card-text-order, .card-subtitle-order, .card-title-order {
     padding: 5px;
 }
 

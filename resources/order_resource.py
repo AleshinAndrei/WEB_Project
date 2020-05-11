@@ -1,43 +1,43 @@
 from flask_restful import abort, Resource
 from flask import jsonify
-from data import db_session, baskets, users, products
-from . import basket_argparser
+from data import db_session, orders, users, products
+from . import order_argparser
 
-Baskets = baskets.Baskets
+Orders = orders.Orders
 User = users.User
 Products = products.Products
 
 
-def abort_if_basket_not_found(basket_id):
+def abort_if_order_not_found(order_id):
     session = db_session.create_session()
-    basket = session.query(Baskets).get(basket_id)
-    if not basket:
-        abort(404, message=f"Basket {basket_id} not found")
+    order = session.query(Orders).get(order_id)
+    if not order:
+        abort(404, message=f"order {order_id} not found")
 
 
-class BasketResource(Resource):
-    def get(self, basket_id):
-        abort_if_basket_not_found(basket_id)
+class OrderResource(Resource):
+    def get(self, order_id):
+        abort_if_order_not_found(order_id)
         session = db_session.create_session()
-        basket = session.query(Baskets).get(basket_id)
-        return jsonify({'basket': basket.to_dict()})
+        order = session.query(Orders).get(order_id)
+        return jsonify({'order': order.to_dict()})
 
-    def delete(self, basket_id):
-        abort_if_basket_not_found(basket_id)
+    def delete(self, order_id):
+        abort_if_order_not_found(order_id)
         session = db_session.create_session()
-        basket = session.query(Baskets).get(basket_id)
-        session.delete(basket)
+        order = session.query(Orders).get(order_id)
+        session.delete(order)
         session.commit()
         return jsonify({'success': 'OK'})
 
 
-class BasketsListResource(Resource):
+class OrdersListResource(Resource):
     def get(self):
         session = db_session.create_session()
-        return jsonify({'baskets': [basket.to_dict() for basket in session.query(Baskets).all()]})
+        return jsonify({'orders': [order.to_dict() for order in session.query(Orders).all()]})
 
     def post(self):
-        args = basket_argparser.parser.parse_args()
+        args = order_argparser.parser.parse_args()
         session = db_session.create_session()
         if not session.query(User).filter(User.id == args['user_id']).first():
             abort(400, message=f"User not found")
@@ -51,12 +51,13 @@ class BasketsListResource(Resource):
                 abort(400, message=f"Product not found")
             elif not (count.isdecimal() and int(count) > 0):
                 abort(400, message=f"Incorrect number of product")
-        basket = Baskets(
+        order = Orders(
             user_id=args['user_id'],
             list_of_products=args['list_of_products'],
+            status=args['status']
         )
         try:
-            session.add(basket)
+            session.add(order)
         except Exception:
             abort(400)
         session.commit()

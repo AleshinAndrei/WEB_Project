@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField
 from flask_restful import Api
 from data import users
-from resources import product_resource, category_resource, user_resource, basket_resource
+from resources import product_resource, category_resource, user_resource, basket_resource, order_resource
 from requests import get, post, delete, put
 
 
@@ -51,6 +51,8 @@ api.add_resource(user_resource.UsersListResource, '/api/users')
 api.add_resource(user_resource.UserResource, '/api/users/<int:user_id>')
 api.add_resource(basket_resource.BasketsListResource, '/api/baskets')
 api.add_resource(basket_resource.BasketResource, '/api/baskets/<int:basket_id>')
+api.add_resource(order_resource.OrderResource, '/api/order/<int:order_id>')
+api.add_resource(order_resource.OrdersListResource, '/api/orders')
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -62,20 +64,48 @@ def load_user(user_id):
 
 
 @login_required
+@app.route('/orders', methods=['GET'])
+def orders():
+    search_form = SearchForm()
+    all_orders = get('http://localhost:5000/api/orders').json()['orders']
+    my_orders = []
+    for order in all_orders:
+        if order['user_id'] == current_user.id:
+            my_orders.append(order)
+    if my_orders:
+        return render_template('order.html', orders=my_orders, search_form=search_form)
+    else:
+        return render_template('order.html', orders=my_orders, no_orders=True, search_form=search_form)
+
+
+
+@login_required
 @app.route('/basket', methods=['POST', 'GET'])
 def look_basket():
     search_form = SearchForm()
-    all_products = get(f'http://localhost:5000/api/products').json()['products']
-    list_of_products = []
     for basket in get('http://localhost:5000/api/baskets').json()['baskets']:
         if basket['user_id'] == current_user.id:
-            for pair in basket['list_of_products'].split(';'):
-                product_id = int(pair.split(':')[0])
-                quantity = int(pair.split(':')[1])
-                product = list(filter(lambda x: x['id'] == product_id, all_products))[0]
-                product['quantity'] = quantity
-                list_of_products.append(product)
+            user_basket = basket
             break
+    else:
+        return render_template('basket.html', list_of_products=[], search_form=search_form, no_basket=True)
+
+    if request.method == "POST":
+        post('http://localhost:5000/api/orders', json={
+            'user_id': current_user.id,
+            'list_of_products': user_basket['list_of_products'],
+            'status': 'На обработке'
+        })  # знаю, что тут нужно сделать foreigner key, но мне было лень его делать
+        return redirect('/orders')
+
+    all_products = get(f'http://localhost:5000/api/products').json()['products']
+    list_of_products = []
+    for pair in user_basket['list_of_products'].split(';'):
+        product_id = int(pair.split(':')[0])
+        quantity = int(pair.split(':')[1])
+        product = list(filter(lambda x: x['id'] == product_id, all_products))[0]
+        product['quantity'] = quantity
+        list_of_products.append(product)
     return render_template('basket.html', list_of_products=list_of_products, search_form=search_form)
 
 
@@ -90,7 +120,6 @@ def edit_user():
             'name': edit_form.name.data,
             'address': edit_form.address.data
         })
-        print('ok')
         return redirect('/profile')
 
     edit_form.name.data = current_user.name

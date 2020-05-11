@@ -17,17 +17,17 @@
                 <div class="card">
                     <img src="../static/images/noimg.png"
                          class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product['name'] }}</h5>
-                        <h6 class="card-subtitle">{{ product['price'] // 100 }}р {{ product['price'] % 100 }}к</h6>
-                        <p class="card-text">{{ product['category'] }}</p>
-                        <p class="card-text">{{ description }}</p>
+                    <div class="card-body-catalog">
+                        <h5 class="card-title-catalog">{{ product['name'] }}</h5>
+                        <h6 class="card-subtitle-catalog">{{ product['price'] // 100 }}р {{ product['price'] % 100 }}к</h6>
+                        <p class="card-text-catalog">{{ product['category'] }}</p>
+                        <p class="card-text-catalog">{{ description }}</p>
                     </div>
                     {% if current_user.is_authenticated %}
-                    <div class="card-control">
-                        <input class="card-number" name="{{ product['id'] }}" type="number"
+                    <div class="card-control-catalog">
+                        <input class="card-number-catalog" name="{{ product['id'] }}" type="number"
                                id="col" value="{{ product['bought'] }}" min="{{ product['bought'] }}">
-                        <input type="submit" class="btn btn-success card-buy" value="Купить">
+                        <input type="submit" class="btn btn-success card-buy-catalog" value="Купить">
                     </div>
                     {% endif %}
                 </div>
